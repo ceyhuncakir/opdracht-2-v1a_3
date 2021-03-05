@@ -10,4 +10,4 @@ Wytze A. Ketel : student nummer : 1797080 : Email : watze.ketel@student.hu.nl<br
 
 # Versie
 
-Versie 0.0.1 | 1-3-2021
+Versie 1.0.0 | 5-3-2021
