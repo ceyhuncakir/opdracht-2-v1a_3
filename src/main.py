@@ -9,9 +9,6 @@ from collections import Counter
 
 colors = ["green", "blue", "yellow", "red", "cyan"]
 
-# 3 forloops voor get collection
-# 3 forloops voor insert mysql database
-
 # voornamelijk gemaakt door: Ceyhun Cakir, Studentnummer: 1784480
 def banner():
     print(colored('''
@@ -238,34 +235,50 @@ def mysql_connector(Mysqluser, Mysqlpassword, Mysqldb):
 
     return mydb, cursor
 
-# voornamelijk gemaakt door: Wytze A. Ketel, Studentnummer: 1797080
-def try_except(value, value1):
+#  Voornamelijk gemaakt door Kenny van den berg Studentnummer: 1777503 en Ceyhun Cakir, Studentnummer: 1784480
+def try_except_flex(*value):
     """
-    Gebruik een try, except, en op basis daarvan return je value[value1] anders return je none
-    :param value:
-    :param value1:
-    :return return value[value1]
-    :except return "None"
+    #     Gebruik een try except over de gegeven dict values, return  de dict value anders return je none
+    #     :param value:
+    #     :param value1:
+    #     :return value[value1]
+    #     :except return "None"
+    #
     """
+    # Een extra varbile mee geven voor de keuze argument[0]
     try:
-        return value[value1]
+        if value[0] == 0:
+            return value[1][value[2]]
+        else:
+            return value[1][value[2]][value[3]]
     except:
         return "None"
 
-# voornamelijk gemaakt door: Wytze A. Ketel, Studentnummer: 1797080
-def try_except_longer(value, value1, value2):
+
+#  Voornamelijk gemaakt door Ceyhun Cakir, Studentnummer: 1784480
+def matcher(column, table, db):
     """
-    Gebruik een try, except, en op basis daarvan return je value[value1][value2] anders return je none
-    :param value:
-    :param value1:
-    :param value2:
-    :return return value[value1][value2]
-    :except return "None"
+    #     Functie voor het zorgen van matches tussen foreignkeys
+    #     :param column:
+    #     :param table:
+    #     :param db:
+    #     :return list[i][0]
+    #
     """
-    try:
-        return value[value1][value2]
-    except:
-        return "None"
+
+    list = []
+
+    mycursor = db.cursor()
+    mycursor.execute("SELECT * FROM " + table)
+
+    myresult = mycursor.fetchall()
+
+    for x in myresult:
+        list.append(x)
+
+    for i in range(len(list)):
+        if column == list[i][1]:
+            return list[i][0]
 
 
 # voornamelijk gemaakt door: Ceyhun Cakir, Studentnummer: 1784480
@@ -296,6 +309,7 @@ def get_item_from_collection(mongodb, Mysqldb, Mysqluser, Mysqlpassword, db, cur
     profiles_value_item_buid = []
     profiles_value_item_buid_copy = []
     profiles_previously_recommended = []
+    profiles_sessions_list = {}
 
     #opslaan van de values van collection sessions
 
@@ -314,67 +328,68 @@ def get_item_from_collection(mongodb, Mysqldb, Mysqluser, Mysqlpassword, db, cur
 
     # for loop voor het ophalen van data vanuit MongoDB
     for value in col_products.find({}, {"_id", "price", "properties", "flavor", "properties", "recommendable", "fast_mover", "brand", "gender", "properties", "sub_category", "sub_sub_category"}):
-        column_id = try_except(value, "_id")
-        column_price = try_except_longer(value, "price", "selling_price")
-        column_stock = try_except_longer(value, "properties", "stock")
-        column_flavor = try_except(value, "flavor")
-        column_kleur = try_except_longer(value, "properties", "kleur")
-        column_recommendable = try_except(value, "recommendable")
-        column_fast_mover =  try_except(value, "fast_mover")
-        products_value_item.append([column_id, column_price, column_stock, column_flavor, column_kleur, column_recommendable, column_fast_mover])
+        column_id = try_except_flex(0,value, "_id")
+        column_price = try_except_flex(1,value, "price", "selling_price")
+        column_stock = try_except_flex(1,value, "properties", "stock")
+        column_flavor = try_except_flex(0,value, "flavor")
+        column_kleur = try_except_flex(1,value, "properties", "kleur")
+        column_recommendable = try_except_flex(0,value, "recommendable")
+        column_fast_mover = try_except_flex(0,value, "fast_mover")
+        column_gender_id = try_except_flex(0,value, "gender")
+        column_doelgroep_id = try_except_flex(1,value, "properties", "doelgroep")
+        column_brand_id = try_except_flex(0,value, "brand")
+        column_main_category_id = try_except_flex(0,value, "sub_category")
+        column_sub_category_id = try_except_flex(0,value, "sub_sub_category")
+
+        products_value_item.append([column_id, column_price, column_stock, column_flavor, column_kleur, column_recommendable, column_fast_mover, column_gender_id, column_doelgroep_id, column_brand_id, column_main_category_id, column_sub_category_id])
 
         # data uithalen voor brand, gender, doelgroep, main_category, sub_category
-        column_brand = try_except(value, "brand")
+        column_brand = try_except_flex(0,value, "brand")
         brand_value_item.append(column_brand)
 
-        column_gender = try_except(value, "gender")
+        column_gender = try_except_flex(0,value, "gender")
         gender_value_item.append(column_gender)
 
-        column_gender_doelgroep = try_except_longer(value, "properties", "doelgroep")
+        column_gender_doelgroep = try_except_flex(1,value, "properties", "doelgroep")
         doelgroep_value_item.append(column_gender_doelgroep)
 
-        sub_category = try_except(value, "sub_category")
+        sub_category = try_except_flex(0,value, "sub_category")
         sub_category_value_item.append(sub_category)
 
-        sub_sub_category = try_except(value, "sub_sub_category")
+        sub_sub_category = try_except_flex(0,value, "sub_sub_category")
         sub_sub_category_value_item.append(sub_sub_category)
 
     for value in col_profile.find({}, {"_id", "buids", "previously_recommended", "order"}):
 
-        column_id = try_except(value, "_id")
-        column_first = try_except_longer(value, "order", "first")
-        column_latest = try_except_longer(value, "order", "latest")
+        column_id = try_except_flex(0,value, "_id")
+        column_first = try_except_flex(1,value, "order", "first")
+        column_latest = try_except_flex(1,value, "order", "latest")
         profiles_values.append([str(column_id), str(column_first), str(column_latest)])
 
-        column_buid = try_except(value, "buids")
+        column_buid = try_except_flex(0,value, "buids")
         profiles_value_item_buid.append(str(column_buid))
 
-    dict = {}
-    list_test = []
+        if column_buid != None and column_buid != "None" and column_buid != "N o n e":
+            for item in column_buid:
+                profiles_sessions_list[item] = str(column_id)
+
+
+
     for value in col_session.find({}, {"buid", "session_start", "session_end", "order"}):
 
+        column_start = try_except_flex(0,value, "session_start")
+        column_end = try_except_flex(0,value, "session_end")
+        column_buid = try_except_flex(0,value, "buid")
 
-        orders = try_except_longer(value, "order", "products")
-        if orders != "None" and orders != None:
-            for key in orders:
-                list_test.append(key["id"])
+        try:
+            id_buid = profiles_sessions_list[''.join([str(item) for item in column_buid])]
+        except (TypeError, KeyError):
+            id_buid = "None"
 
-
-        column_start = try_except(value, "session_start")
-        column_end = try_except(value, "session_end")
-
-        column_buid = try_except(value, "buid")
         if column_buid == None:
             column_buid = ["None"]
 
-        sessions_date_to_from.append([' '.join([str(item) for item in column_buid ]), str(column_start), str(column_end)])
-
-    count = 0
-    for item in list_test:
-        for item_dub in list_test:
-            if item == item_dub:
-                count += 1
-        dict[item] = count
+        sessions_date_to_from.append([' '.join([str(item) for item in column_buid ]), str(column_start), str(column_end), id_buid])
 
     insert_into_mysql(Mysqluser, Mysqlpassword, Mysqldb, db, cursor, products_value_item, brand_value_item, gender_value_item, doelgroep_value_item, sub_category_value_item, sub_sub_category_value_item, profiles_previously_recommended, profiles_value_item_buid, profiles_values, sessions_date_to_from)
 
@@ -388,73 +403,47 @@ def setting_list(list_value):
     list_category_value = list(set(list_value))
     return list_category_value
 
-#  Voornamelijk gemaakt door Kenny van den berg Studentnummer: 1777503
-def loop_through_value(list_value, db, cursor, table, column):
-    """
-    Connect aan de database en loop door de verschillende waardes in de list, voeg ze dan toe aan de table. Je voegt hier maar 1 waarde toe aan de table en collum.
-    Execute deze command en commit het naar de sql database.
-    :param list_value:
-    :param db:
-    :param table:
-    :param column:
-    :return:
-    """
-    mycursor = db.cursor()
-    for item in list_value:
-        category_list_sql = "INSERT IGNORE INTO " + table + " (" + column + ") VALUES (%s)"
-        category_list_sql_value = (item, )
-        mycursor.execute(category_list_sql, category_list_sql_value)
 
-    db.commit()
-
-#  Voornamelijk gemaakt door Kenny van den berg Studentnummer: 1777503
-def loop_through_three_values(list_value, db, cursor, table, column, column1, column2):
+#  Voornamelijk gemaakt door Kenny van den berg Studentnummer: 1777503 en Ceyhun Cakir, Studentnummer: 1784480
+def loop_through_values(direction, list_value, db, cursor, table, *column):
     """
-    Connect aan de database en loop door de verschillende waardes in de list, voeg ze dan toe aan de table. Je voegt hier 3 waardes toe aan de table en collum.
+    Connect aan de database en loop door de verschillende waardes in de list en voeg ze dan toe aan de table. Je voegt hier waardes toe aan de table en collum.
     Execute deze command en commit het naar de sql database.
+    :param direction:
     :param list_value:
     :param db:
     :param cursor:
     :param table:
-    :param column:
-    :param column1:
-    :param column2:
+    :param *column:
     :return:
     """
     mycursor = db.cursor()
-    for item in list_value:
-        category_list_sql = "INSERT IGNORE INTO " + table + " (" + column + ", " + column1 + ", " + column2 + ") VALUES (%s, %s, %s)"
-        category_list_sql_value = (item[0], item[1], item[2])
-        mycursor.execute(category_list_sql, category_list_sql_value)
+    if direction == 0:
+        category_list_sql = "INSERT IGNORE INTO " + table + " (" + column[0] + ") VALUES (%s)"
+        for item in list_value:
+            category_list_sql_value = (item, )
+            mycursor.execute(category_list_sql, category_list_sql_value)
+
+    elif direction == 1:
+        category_list_sql = "INSERT IGNORE INTO " + table + " (" + column[0] + ", " + column[1] + ", " + column[2] + ") VALUES (%s, %s, %s)"
+        for item in list_value:
+            category_list_sql_value = (item[0], item[1], item[2])
+            mycursor.execute(category_list_sql, category_list_sql_value)
+
+    elif direction == 2:
+        category_list_sql = "INSERT IGNORE INTO " + table + " (" + column[0] + ", " + column[1] + ", " + column[2] + ", " + column[3] + ", " + column[4] + ", " + column[5] + ", " + column[6] + ", " + column[7] + ", " + column[8] + ", " + column[9] + ", " + column[10] + ", " + column[11] + ") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        for list1 in list_value:
+            category_list_sql_value = (list1[0], list1[1], list1[2], list1[3], list1[4], list1[5], list1[6], matcher(list1[7], "gender", db), matcher(list1[8], "doelgroep", db), matcher(list1[9], "brand", db), matcher(list1[10], "main_category", db), matcher(list1[11], "sub_category", db))
+            mycursor.execute(category_list_sql, category_list_sql_value)
+
+    elif direction == 3:
+        category_list_sql = "INSERT IGNORE INTO " + table + " (" + column[0] + ", " + column[1] + ", " + column[2] + ", " + column[3] + ") VALUES (%s, %s, %s, %s)"
+        for item in list_value:
+            category_list_sql_value = (item[0], item[1], item[2], item[3])
+            mycursor.execute(category_list_sql, category_list_sql_value)
 
     db.commit()
 
-#  Voornamelijk gemaakt door Kenny van den berg Studentnummer: 1777503
-def loop_through_values(list_value, db, cursor, table, column, column1, column2, column3, column4, column5, column6):
-    """
-    Connect aan de database en loop door de verschillende waardes in de list, voeg ze dan toe aan de table. Je voegt hier 6 waardes toe aan de table en collum.
-    Execute deze command en commit het naar de sql database.
-    :param list_value:
-    :param db:
-    :param cursor:
-    :param table:
-    :param column:
-    :param column1:
-    :param column2:
-    :param column3:
-    :param column4:
-    :param column5:
-    :param column6:
-    :return:
-    """
-    mycursor = db.cursor()
-
-    for list1 in list_value:
-        category_list_sql = "INSERT IGNORE INTO " + table + " (" + column + ", " + column1 + ", " + column2 + ", " + column3 + ", " + column4 + ", " + column5 + ", " + column6 + ") VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        category_list_sql_value = (list1[0], list1[1], list1[2], list1[3], list1[4], list1[5], list1[6])
-        mycursor.execute(category_list_sql, category_list_sql_value)
-
-    db.commit()
 
 #  Voornamelijk gemaakt door Kenny van den berg Studentnummer: 1777503
 def insert_into_mysql(Mysqluser, Mysqlpassword, Mysqldb, db, cursor, products_list, brand_list, gender_list, doelgroep_list, sub_category_list, sub_sub_category_list, profiles_previously_recommended, profiles_value_item_buid, profiles_values, sessions_date_to_from):
@@ -487,21 +476,21 @@ def insert_into_mysql(Mysqluser, Mysqlpassword, Mysqldb, db, cursor, products_li
     set_sub_sub_category_list = setting_list(sub_sub_category_list)
 
 
-    loop_through_value(set_brand_list, db, cursor, "brand", "brand")
-    loop_through_value(set_gender_list, db, cursor, "gender", "gender")
-    loop_through_value(set_doelgroep_list, db, cursor, "doelgroep", "doelgroep")
-    loop_through_value(set_sub_category_list, db, cursor, "main_category", "main_category")
-    loop_through_value(set_sub_sub_category_list, db, cursor, "sub_category", "sub_category")
+    loop_through_values(0, set_brand_list, db, cursor, "brand", "brand")
+    loop_through_values(0, set_gender_list, db, cursor, "gender", "gender")
+    loop_through_values(0, set_doelgroep_list, db, cursor, "doelgroep", "doelgroep")
+    loop_through_values(0, set_sub_category_list, db, cursor, "main_category", "main_category")
+    loop_through_values(0, set_sub_sub_category_list, db, cursor, "sub_category", "sub_category")
 
+    loop_through_values(2, products_list, db, cursor, "products", "id", "price", "stock", "flavor", "kleur", "recomendable", "fast_mover", "gender_id_key", "doelgroep_id_key", "brand_id_key", "main_category_id_key", "sub_category_id_key")
+    print(colored("\n\tProducts is klaar", "yellow"))
 
-    loop_through_values(products_list, db, cursor, "products", "id", "price", "stock", "flavor", "kleur", "recomendable", "fast_mover")
-    print("products done")
+    loop_through_values(1, profiles_values, db, cursor, "profiles", "id", "first_order_item", "last_order_item")
+    print(colored("\n\tProfiles is klaar", "yellow"))
 
-    loop_through_three_values(sessions_date_to_from, db, cursor, "sessions", "id", "date_from", "date_to")
-    print("sessions done")
+    loop_through_values(3, sessions_date_to_from, db, cursor, "sessions", "id", "date_from", "date_to", "profiles_id_key")
+    print(colored("\n\tSessions is klaar", "yellow"))
 
-    loop_through_three_values(profiles_values, db, cursor, "profiles", "id", "first_order_item", "last_order_item")
-    print("profiles done")
 
     end = time.time()
     print(colored("\n\tMysql tables is gevuld", "green"))
