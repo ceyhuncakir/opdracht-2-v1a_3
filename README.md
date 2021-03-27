@@ -1,43 +1,43 @@
-# Document Store naar Relationele Database
-Git voor het opdracht Document Store naar Relationele Database - Groep V1A-3.
+# Document Store to Relational Database
+Git for the Document Store to Relational Database - Group V1A-3.
 
-# Leden
+# Group Members
 
 Ceyhun Cakir : student nummer 1784480 : Email: ceyhun.cakir@student.hu.nl<br/>
 Kenny van den Berg : student nummer: 1777503 : Email: kenny.vandenberg@student.hu.nl<br/>
 Izabelle Auriaux : student nummer : 1762808 : Email: izabelle.auriaux@student.hu.nl<br/>
 Wytze A. Ketel : student nummer : 1797080 : Email : watze.ketel@student.hu.nl<br/>
 
-# Benodigdheden
-  om dit programma te gebruiken heb je de volgende onderdelen geinstalleert / gekregen.
+# Necessities
+  to use this program you have installed / received the following components.
   ```
-  Meegegeven JSON bestanden van Hogeschool
-  Geinstalleerde MongoDBCompass (1.26.0 *)
-  Geinstalleerde XAMPP (8.0.2 *) met de bijbehorende onderdelen
+  JSON files provided by Hogeschool
+  Installed MongoDBCompass (1.26.0 *)
+  Installed XAMPP (8.0.2 *) with its components
   ```
 
-# Installatie 
+# Installation
   
   ## MongoDB
-  Installeer MongoDBCompass (1.26.0 *) en maak de volgende collections aan in een database
+  Install MongoDBCompass (1.26.0 *) and create the following collections in a database
   ```
   products
   sessions
   profiles
   ```
-  Voeg daar de bijbehorende json bestanden toe aan elke collection
+  Add the corresponding json files to each collection
   ```
   products.json
   sessions.json
   profiles.json
   ```
   ## MySQL
-  Zorg dat je XAMPP (8.0.2 *) hebt geinstalleert met de bijbehorende onderdelen
+  Make sure you have installed XAMPP (8.0.2 *) and its components
   ```
   Apache2 server
   MySQL database
   ```
 
-# Versie
+# Version
 
-Versie 2.0.0 | 7-3-2021
+Version 2.0.1 | 27/3/2021
